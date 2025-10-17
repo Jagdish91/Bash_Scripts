@@ -1,0 +1,10 @@
+[Unit]
+Description=Run Disk Utilization Check every 30 minutes
+
+[Timer]
+OnBootSec=5min
+OnUnitActiveSec=30min
+Unit=disk_check.service
+
+[Install]
+WantedBy=timers.target

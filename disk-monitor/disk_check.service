@@ -1,0 +1,17 @@
+[Unit]
+Description=Disk Utilization Check Service
+Documentation=/home/jaggi/logs/disk_usage.sh
+After=network.target
+
+[Service]
+Type=oneshot
+ExecStart=/home/jaggi/logs/disk_usage.sh
+User=root
+Group=root
+
+#Logging
+StandardOutput=append:/var/log/disk_usage_service.log
+StandardError=append:/var/log/disk_usage_service.log
+
+[Install]
+Wantedby=multi-user.target
