@@ -1,6 +1,0 @@
------------
-this is first thread
-second thread
-third thread
-fourth thread
-----------
