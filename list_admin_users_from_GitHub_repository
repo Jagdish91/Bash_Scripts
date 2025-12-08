@@ -1,0 +1,72 @@
+!/bin/bash
+
+
+#########################################################################
+# Author: Jagdish Singh
+# Date: December 2025
+#
+# This script will list all GitHub users who have ADMIN access to a given
+# Github repository
+#
+# Usage:
+#  USERNAME=your_github_username TOKEN=your_github_token
+#  ./list_admin_users.sh <repo_owner> <repo_name>
+#
+#########################################################################
+
+
+# GitHub API base url
+API_URL="https://api.github.com"
+
+# Read credentials from environment variables
+USERNAME="${username:-}"
+TOKEN="${token:-}"
+
+# Read repo owner and repo name from arguments
+REPO_OWNER="$1"
+REPO_NAME="$2"
+
+
+# Validate inputs
+if [ -z "$USERNAME" ] || [ -z "${TOKEN}" ]; then
+        echo "ERROR: Github USERNAME or TOKEN is missing"
+        echo "Run like this"
+        echo "USERNAME=your_username TOKEN=your_token $0 <owner> <repo>"
+        exit 1
+fi
+
+if [ -z "$REPO_OWNER" ] || [ -z "$REPO_NAME" ]; then
+        echo "ERROR: repository name or name is missing."
+        echo "Usage: $0 <repo_owner> <repo_name>"
+        eixt 2
+fi
+
+
+# Create API URl
+COLLABORATORS_URL="${API_URL}/repos/${REPO_OWNER}/${REPO_NAME}/collaborators"
+
+echo "Checking repository:"
+echo "${COLLABORATORS_URL}"
+echo
+
+#Call GitHub API
+response=$(curl -s -u "${USERNAME}:${TOKEN}" "${COLLABORATORS_URL}")
+
+# Check for API errors
+
+if echo "$response" | jq -e 'has("message")' >dev/null 2>&1; then
+        error_message=$(echo $response | jq -r '.message')
+        echo "GitHub API error: $error_message"
+        exit 3
+fi
+
+# Extract users with admin access
+admin_users=$(echo "$response" | jq -r '.[] | select(.permissions.admin == true) | .login')
+
+
+if [ -z "$admin_users" ]; then
+        echo "No users with ADMIN access found for ${REPO_OWNER}/${REPO_NAME}"
+else
+        echo "Users with ADMIN access to ${REPO_OWNER}/${REPO_NAME}"
+        echo "$admin_users"
+fi
