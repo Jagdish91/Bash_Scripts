@@ -54,9 +54,9 @@ response=$(curl -s -u "${USERNAME}:${TOKEN}" "${COLLABORATORS_URL}")
 
 # Check for API errors
 
-if echo "$response" | jq -e 'has("message")' >dev/null 2>&1; then
-        error_message=$(echo $response | jq -r '.message')
-        echo "GitHub API error: $error_message"
+if echo "$response" | jq -e 'has("message")' >dev/null 2>&1; then      # -e for --exit-status based on the filter result -> false, null or no output (jq -e) exits
+        error_message=$(echo $response | jq -r '.message')             # with non-zero status(failure)    has("") is a jq filter
+        echo "GitHub API error: $error_message"                        # .dev/null 2>&1 to discard output of whole pipleline
         exit 3
 fi
 
